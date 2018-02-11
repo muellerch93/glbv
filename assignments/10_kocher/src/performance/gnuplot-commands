@@ -1,0 +1,5 @@
+set ylabel "Runtime [ms] (smaller is better)"
+set output "n2_offer_n2_poll.png"
+set xlabel "Number of operations (offer/add + poll)"
+set terminal pngcairo
+plot "2.dat" using 1:2 with lines title "FibonacciHeap", "2.dat" using 1:3 with lines title "PriorityQueue"

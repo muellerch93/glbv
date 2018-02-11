@@ -1,0 +1,549 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage[margin=1in]{geometry}
+\usepackage{multicol}
+
+\usetikzlibrary{positioning, shapes, automata, arrows, backgrounds, shapes.geometric}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+\title{Assignment 11 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle
+
+{\bfseries Aufgabe 20}%
+
+Sei $Q$ ein anfangs leerer Fibonacci-Heap. Geben Sie eine Folge von Schl{\"u}sseln
+sowie eine Folge von Operationen auf die von Ihnen gew{\"a}hlte Folge von
+Schl{\"u}sseln an, sodass der resultierende Fibonacci-Heap aus zwei B{\"a}umen
+$B_1$ und $B_2$ mit jeweils $\frac{n}{2}$ Knoten besteht, wobei
+{\parskip0pt
+  \begin{itemize}
+    \item die Wurzel von $B_1$ mindestens Grad $4$ hat und
+    \item $B_2$ ein entarteter Baum ist, in dem jeder innere Knoten genau einen
+      Sohn besitzt.
+  \end{itemize}
+}
+Sie d{\"u}rfen davon ausgehen, dass $\frac{n}{2}$ die Form $2^k$ mit $k \geq 3$
+hat.
+
+\textbf{Hinweis:} Konstruieren Sie zun{\"a}chst den Baum $B_1$ und
+anschlie{\ss}end den Baum $B_2$, sodass w{\"a}hrend der Konstruktion von $B_2$
+der Baum $B_1$ sich nicht mehr {\"a}ndert.
+
+\textbf{Zur Konstruktion von Baum $B_1$:} \newline
+Es reicht hier eine Folge von $17$ Aufrufen von $insert$ und ein
+anschlie{\ss}ender Aufruf von $deletemin$. Die Schl{\"u}ssel werden dabei gro{\ss}
+genug gew{\"a}hlt, sodass wir noch genug Spielraum f{\"u}r die Konstruktion von
+Baum $B_2$ haben.
+
+\textbf{Zur Konstruktion von Baum $B_2$:} \newline
+Um einen entarteten Baum zu bekommen, ben{\"o}tigen wir die Operationen $insert$,
+$deletemin$ sowie $decreasekey$. Zu Beginn f{\"u}gen wir $3$ Schl{\"u}ssel ein
+mit anschlie{\ss}ender $deletemin$ Operation. Damit erhalten wir einen Baum mit
+zwei linear verketteten Elementen. Per $insert$ f{\"u}gen wir jeweils drei Knoten
+ein, wobei diese drei Knoten kleiner als das bisherige Minimum sind. Danach
+f{\"u}hren wir eine $deletemin$ Operation durch. Dies hat zur Folge, dass im Zuge
+der $consolidate$ Operation, die verbleibenden Knoten (ohne $B_1$)
+zusammengef{\"u}hrt werden, da beide Rang $1$ besitzen. Im Anschluss wird die
+Operation $decreasekey(i, j)$ ausgef{\"u}hrt, wobei $i =$ der gr{\"o}{\ss}te der
+zuvor eingef{\"u}gten Schl{\"u}ssel, und $j = $ der kleinste der zuvor
+eingef{\"u}gten Schl{\"u}ssel ist. Dadurch wird der Knoten von $B_2$ abgeschnitten
+und als neues Minimum in den Fibonacci-Heap eingef{\"u}gt. Das anschlie{\ss}ende
+$deletemin$ entfernt diesen Knoten dann und es verbleiben $B_1$ (unver{\"a}ndert)
+und $B_2$ (entarteter Baum). Diese Vorgehensweise kann nun so oft wiederholt
+werden bis sich $\frac{n}{2}$ linear verkettete Elemente in $B_2$ befinden. Alle
+eingef{\"u}gten Schl{\"u}ssel m{\"u}ssen kleiner sein, als das Minimum des
+aktuellen Fibonacci-Heaps. Damit wird (1) verhindert, dass wir w{\"a}hrend der
+Konstruktion von $B_2$ den Baum $B_1$ ver{\"a}ndern (wie im Hinweis erw{\"a}hnt),
+und (2) erzwungen, dass $B_2$ in eine linear verkettete Liste entartet.
+
+\clearpage
+
+Daraus ergibt sich folgende Operationsfolge (Schl{\"u}ssel werden in den
+jeweiligen Operationen angegeben).
+
+\textbf{Konstruktion von $B_1$:} \newline
+$insert(50)$, $insert(51)$, $insert(52)$, $insert(53)$, $insert(54)$, \newline
+$insert(55)$, $insert(56)$, $insert(57)$, $insert(58)$, $insert(59)$, \newline
+$insert(60)$, $insert(61)$, $insert(62)$, $insert(63)$, $insert(64)$, \newline
+$insert(65)$, $insert(66)$, $deletemin()$.
+
+\textbf{Konstruktion von $B_2$:} \newline
+$insert(40)$, $insert(39)$, $insert(38)$, $deletemin()$, \newline
+$insert(36)$, $insert(37)$, $insert(38)$, $deletemin()$, $decreasekey(38, 36)$, $deletemin()$, \newline
+$insert(34)$, $insert(35)$, $insert(36)$, $deletemin()$, $decreasekey(36, 34)$, $deletemin()$, \newline
+$insert(32)$, $insert(33)$, $insert(34)$, $deletemin()$, $decreasekey(34, 32)$, $deletemin()$, \newline
+$insert(30)$, $insert(31)$, $insert(32)$, $deletemin()$, $decreasekey(32, 30)$, $deletemin()$, \newline
+$insert(28)$, $insert(29)$, $insert(30)$, $deletemin()$, $decreasekey(30, 28)$, $deletemin()$, \newline
+$insert(26)$, $insert(27)$, $insert(28)$, $deletemin()$, $decreasekey(28, 26)$, $deletemin()$, \newline
+$insert(24)$, $insert(25)$, $insert(26)$, $deletemin()$, $decreasekey(26, 24)$, $deletemin()$, \newline
+$insert(22)$, $insert(23)$, $insert(24)$, $deletemin()$, $decreasekey(24, 22)$, $deletemin()$, \newline
+$insert(20)$, $insert(21)$, $insert(22)$, $deletemin()$, $decreasekey(22, 20)$, $deletemin()$, \newline
+$insert(18)$, $insert(19)$, $insert(20)$, $deletemin()$, $decreasekey(20, 18)$, $deletemin()$, \newline
+$insert(16)$, $insert(17)$, $insert(18)$, $deletemin()$, $decreasekey(18, 16)$, $deletemin()$, \newline
+$insert(14)$, $insert(15)$, $insert(16)$, $deletemin()$, $decreasekey(16, 14)$, $deletemin()$, \newline
+$insert(12)$, $insert(13)$, $insert(14)$, $deletemin()$, $decreasekey(14, 12)$, $deletemin()$, \newline
+$insert(10)$, $insert(11)$, $insert(12)$, $deletemin()$, $decreasekey(12, 10)$, $deletemin()$.
+
+F{\"u}r das Einf{\"u}gen wird angenommen, dass wir immer rechts vom aktuellen
+Minimum einf{\"u}gen. Dieselbe Annahme wurde bei \texttt{consolidate} getroffen,
+d.h. es wird beim rechten Zwilling der zuvor entfernten Minimums begonnen.
+
+\tikzstyle{elem}=[draw, circle, thick, fill=blue!20, minimum size=10mm]
+\tikzstyle{elem-marked}=[elem, fill=red!20]
+\tikzstyle{pointer}=[->, >=stealth, thick, solid]
+\tikzstyle{pointer-child}=[pointer, black]
+\tikzstyle{pointer-parent}=[pointer, red]
+\tikzstyle{pointer-left}=[pointer, blue]
+\tikzstyle{pointer-right}=[pointer, green!65!black]
+\tikzstyle{pointer-min}=[pointer, <-, ultra thick]
+
+Im Folgenden werden einige Schritte dargestellt, wobei f{\"u}r die
+Child-Parent-Left-Right Darstellung die folgenden Pfeile und Knoten verwendet
+werden:
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \draw[pointer-child] (0, 0) -- ++(0.5, 0) node[right] (child) {\ldots Child-/Min-Pointer};
+    \draw[pointer-parent] (5, 0) -- ++(0.5, 0) node[right] {\ldots Parent-Pointer};
+    \draw[pointer-left] (9, 0) -- ++(0.5, 0) node[right] (left) {\ldots Left-Pointer};
+    \draw[pointer-right] (13, 0) -- ++(0.5, 0) node[right] {\ldots Right-Pointer};
+    \node[elem, below left = 0.5 and 0 of child] (normal-node) {$x$};
+    \node[right = 0 of normal-node] {\ldots Normaler Knoten};
+    \node[elem-marked, below  left = 0.5 and 0 of left] (marked-node) {$x$};
+    \node[right = 0 of marked-node] {\ldots Markierter Knoten};
+  \end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=0.65, every node/.style={scale=0.65}, trim left = -3cm]
+    \node[elem] (e-51) {$51$};
+    \node[elem, below left = 1.5 and 3 of e-51] (e-52) {$52$};
+    \node[elem, right = 1 of e-52] (e-53) {$53$};
+    \node[elem, below = 1.25 of e-53] (e-54) {$54$};
+    \node[elem, right = 3 of e-53] (e-55) {$55$};
+    \node[elem, below left = 1.5 and 1 of e-55] (e-56) {$56$};
+    \node[elem, below right = 1.5 and 1 of e-55] (e-57) {$57$};
+    \node[elem, below = 1 of e-57] (e-58) {$58$};
+    \node[elem, right = 7 of e-55] (e-59) {$59$};
+    \node[elem, below left = 1.5 and 3 of e-59] (e-60) {$60$};
+    \node[elem, right = 1 of e-60] (e-61) {$61$};
+    \node[elem, below = 1.25 of e-61] (e-62) {$62$};
+    \node[elem, right = 3 of e-61] (e-63) {$63$};
+    \node[elem, below left = 1.5 and 1 of e-63] (e-64) {$64$};
+    \node[elem, below right = 1.5 and 1 of e-63] (e-65) {$65$};
+    \node[elem, below = 1 of e-65] (e-66) {$66$};
+
+    \draw[pointer-min] (e-51.north) -- ++(0, 0.5);
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=7] (e-51.east);
+    \path[pointer-right] (e-51.east) edge[in=-160, out=-20, looseness=7] (e-51.west);
+    \path[pointer-child] (e-51.west) edge[bend right] (e-52.north);
+    \path[pointer-left] (e-52.west) edge[in=20, out=160, looseness=.75] (e-59.east);
+    \path[pointer-right] (e-52.east) edge[bend right] (e-53.west);
+    \path[pointer-parent] (e-52.north) edge[bend right] (e-51.west);
+    \path[pointer-left] (e-53.west) edge[bend right] (e-52.east);
+    \path[pointer-right] (e-53.east) edge[bend right] (e-55.west);
+    \path[pointer-child] (e-53.south) edge[bend right] (e-54.north);
+    \path[pointer-parent] (e-53.north east) edge[bend right] (e-51.south west);
+    \path[pointer-left] (e-54.west) edge[in=20, out=160, looseness=7] (e-54.east);
+    \path[pointer-right] (e-54.east) edge[in=-160, out=-20, looseness=7] (e-54.west);
+    \path[pointer-parent] (e-54.north) edge[bend right] (e-53.south);
+    \path[pointer-left] (e-55.west) edge[bend right] (e-53.east);
+    \path[pointer-right] (e-55.east) edge[bend right=10] (e-59.west);
+    \path[pointer-child] (e-55.south west) edge[bend right] (e-56.north);
+    \path[pointer-parent] (e-55.north west) edge[bend left] (e-51.south);
+    \path[pointer-left] (e-56.west) edge[in=20, out=160, looseness=2] (e-57.east);
+    \path[pointer-right] (e-56.east) edge[bend right] (e-57.west);
+    \path[pointer-parent] (e-56.north) edge[bend right] (e-55.south west);
+    \path[pointer-left] (e-57.west) edge[bend right] (e-56.east);
+    \path[pointer-right] (e-57.east) edge[in=-160, out=-20, looseness=2] (e-56.west);
+    \path[pointer-child] (e-57.south) edge[bend right] (e-58.north);
+    \path[pointer-parent] (e-57.north) edge[bend right] (e-55.south east);
+    \path[pointer-left] (e-58.west) edge[in=20, out=160, looseness=7] (e-58.east);
+    \path[pointer-right] (e-58.east) edge[in=-160, out=-20, looseness=7] (e-58.west);
+    \path[pointer-parent] (e-58.north) edge[bend right] (e-57.south);
+    \path[pointer-left] (e-59.west) edge[bend right=10] (e-55.east);
+    \path[pointer-right] (e-59.east) edge[in=-160, out=-20, looseness=0.75] (e-52.west);
+    \path[pointer-child] (e-59.south west) edge[bend right=20] (e-60.north);
+    \path[pointer-parent] (e-59.north) edge[bend right] (e-51.east);
+    \path[pointer-left] (e-60.west) edge[in=20, out=160, looseness=1.25] (e-63.east);
+    \path[pointer-right] (e-60.east) edge[bend right] (e-61.west);
+    \path[pointer-parent] (e-60.north) edge[bend right=20] (e-59.south west);
+    \path[pointer-left] (e-61.west) edge[bend right] (e-60.east);
+    \path[pointer-right] (e-61.east) edge[bend right] (e-63.west);
+    \path[pointer-child] (e-61.south) edge[bend right] (e-62.north);
+    \path[pointer-parent] (e-61.north east) edge[bend right] (e-59.south);
+    \path[pointer-left] (e-62.west) edge[in=20, out=160, looseness=7] (e-62.east);
+    \path[pointer-right] (e-62.east) edge[in=-160, out=-20, looseness=7] (e-62.west);
+    \path[pointer-parent] (e-62.north) edge[bend right] (e-61.south);
+    \path[pointer-left] (e-63.west) edge[bend right] (e-61.east);
+    \path[pointer-right] (e-63.east) edge[in=-160, out=-20, looseness=1.25] (e-60.west);
+    \path[pointer-child] (e-63.south west) edge[bend right] (e-64.north);
+    \path[pointer-parent] (e-63.north) edge[bend right] (e-59.south east);
+    \path[pointer-left] (e-64.west) edge[in=20, out=160, looseness=2] (e-65.east);
+    \path[pointer-right] (e-64.east) edge[bend right] (e-65.west);
+    \path[pointer-parent] (e-64.north) edge[bend right] (e-63.south west);
+    \path[pointer-left] (e-65.west) edge[bend right] (e-64.east);
+    \path[pointer-right] (e-65.east) edge[in=-160, out=-20, looseness=2] (e-64.west);
+    \path[pointer-child] (e-65.south) edge[bend right] (e-66.north);
+    \path[pointer-parent] (e-65.north west) edge[bend left] (e-63.south);
+    \path[pointer-left] (e-66.west) edge[in=20, out=160, looseness=7] (e-66.east);
+    \path[pointer-right] (e-66.east) edge[in=-160, out=-20, looseness=7] (e-66.west);
+    \path[pointer-parent] (e-66.north) edge[bend right] (e-65.south);
+  \end{tikzpicture}
+  \caption{Baum $B_1$ mit $\frac{n}{2} = 16$ Knoten, wobei die Wurzel Grad $4$
+    hat.
+  }
+\end{figure}
+
+Konstruktion von $B_1$ ist abgeschlossen und die Bedingung aus der Angabe ist erf{\"u}llt.
+$\Longrightarrow \frac{n}{2} = 16$. Das bedeutet, wird ben{\"o}tigen f{\"u}r $B_2$
+einen entarteten Baum mit $16$ Elementen (d.h. eine linear verkettete Liste mit
+$16$ Elementen).
+
+Beispielhaft seien hier die ersten 3 Zeilen aus der Konstruktion von $B_2$
+dargestellt. Der Baum $B_1$ wird nicht mehr explizit dargestellt, da er sich im
+Zuge der Konstruktion von $B_2$ nicht ver{\"a}ndert.
+
+\tikzstyle{tree}=[draw,shape border uses incircle, isosceles triangle,
+  shape border rotate=90,yshift=-1.45cm, thick
+]
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=0.65, every node/.style={scale=0.65}, trim left = -3cm]
+    \node[elem] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1.5 of e-51] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-39.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-39.west);
+    \path[pointer-left] (e-39.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+
+    \draw[pointer-min] (e-39.north) -- ++(0, 0.5);
+  \end{tikzpicture}
+  \caption{Nach $insert(40)$, $insert(39)$, $insert(38)$, $deletemin()$.}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=0.65, every node/.style={scale=0.65}, trim left = 0]
+    \node[elem] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1.5 of e-51] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+    \node[elem, right = 1 of e-39] (e-36) {$36$};
+    \node[elem, right = 1 of e-36] (e-38) {$38$};
+    \node[elem, right = 1 of e-38] (e-37) {$37$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=0.75] (e-37.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-39.west);
+    \path[pointer-left] (e-39.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-39.east) edge[bend right] (e-36.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+    \path[pointer-left] (e-36.west) edge[bend right] (e-39.east);
+    \path[pointer-right] (e-36.east) edge[bend right] (e-38.west);
+    \path[pointer-left] (e-38.west) edge[bend right] (e-36.east);
+    \path[pointer-right] (e-38.east) edge[bend right] (e-37.west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-38.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=0.75] (e-51.west);
+
+    \draw[pointer-min] (e-36.north) -- ++(0, 0.5);
+
+    \node[right = 1 of e-37] (lra) {$\Longrightarrow$};
+    \node[above = 0 of lra] {$deletemin()$};
+
+    \node[elem, right = 1.5 of lra] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 3 of e-51] (e-37) {$37$};
+    \node[elem, below left = 1.5 and 1 of e-37] (e-38) {$38$};
+    \node[elem, below right = 1.5 and 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-37.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-37.west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-37.south west) edge[bend right] (e-38.north);
+    \path[pointer-left] (e-38.west) edge[in=20, out=160, looseness=2] (e-39.east);
+    \path[pointer-right] (e-38.east) edge[bend right] (e-39.west);
+    \path[pointer-parent] (e-38.north) edge[bend right] (e-37.south west);
+    \path[pointer-left] (e-39.west) edge[bend right] (e-38.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=2] (e-38.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north west) edge[bend left] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+
+    \draw[pointer-min] (e-37.north) -- ++(0, 0.5);
+
+    \node[below = 2 of e-38] (da) {$\Downarrow$};
+    \node[left = 0 of da] {$decreasekey(38, 36)$};
+
+    \node[elem, below = 5 of e-51] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1 of e-51] (e-37) {$37$};
+    \node[elem, right = 1 of e-37] (e-36) {$36$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=1.5] (e-36.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-37.west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-37.east) edge[bend right] (e-36.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-left] (e-36.west) edge[bend right] (e-37.east);
+    \path[pointer-right] (e-36.east) edge[in=-160, out=-20, looseness=1.5] (e-51.west);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+
+    \draw[pointer-min] (e-36.north) -- ++(0, 0.5);
+
+    \node[left = 1 of e-51] (lla) {$\Longleftarrow$};
+    \node[above = 0 of lla] {$deletemin()$};
+
+    \node[elem, left = 3 of lla] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1 of e-51] (e-37) {$37$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-37.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-37.west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+  \end{tikzpicture}
+  \caption{$insert(36)$, $insert(37)$, $insert(38)$, $deletemin()$,
+    $decreasekey(38, 36)$, $deletemin()$.
+  }
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=0.65, every node/.style={scale=0.65}, trim left = 0]
+    \node[elem] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1 of e-51] (e-37) {$37$};
+    \node[elem, right = 1 of e-37] (e-34) {$34$};
+    \node[elem, right = 1 of e-34] (e-36) {$36$};
+    \node[elem, right = 1 of e-36] (e-35) {$35$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=1] (e-35.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-37.west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-37.east) edge[bend right] (e-34.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-left] (e-34.west) edge[bend right] (e-37.east);
+    \path[pointer-right] (e-34.east) edge[bend right] (e-36.west);
+    \path[pointer-left] (e-36.west) edge[bend right] (e-34.east);
+    \path[pointer-right] (e-36.east) edge[bend right] (e-35.west);
+    \path[pointer-left] (e-35.west) edge[bend right] (e-36.east);
+    \path[pointer-right] (e-35.east) edge[in=-160, out=-20, looseness=1] (e-51.west);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+
+    \draw[pointer-min] (e-34.north) -- ++(0, 0.5);
+
+    \node[right = 1 of e-35] (lra) {$\Longrightarrow$};
+    \node[above = 0 of lra] {$deletemin()$};
+
+    \node[elem, right = 1.5 of lra] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 3 of e-51] (e-35) {$35$};
+    \node[elem, below left = 1.5 and 1 of e-35] (e-36) {$36$};
+    \node[elem, below right = 1.5 and 1 of e-35] (e-37) {$37$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-35.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-35.west);
+    \path[pointer-left] (e-35.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-35.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-35.south west) edge[bend right] (e-36.north);
+    \path[pointer-left] (e-36.west) edge[in=20, out=160, looseness=2] (e-37.east);
+    \path[pointer-right] (e-36.east) edge[bend right] (e-37.west);
+    \path[pointer-parent] (e-36.north) edge[bend right] (e-35.south west);
+    \path[pointer-left] (e-37.west) edge[bend right] (e-36.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=2] (e-36.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-parent] (e-37.north west) edge[bend left] (e-35.south);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+
+    \draw[pointer-min] (e-35.north) -- ++(0, 0.5);
+
+    \node[below = 4 of e-36] (da) {$\Downarrow$};
+    \node[left = 0 of da] {$decreasekey(36, 34)$};
+
+    \node[elem, below = 7 of e-51] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 3 of e-51] (e-35) {$35$};
+    \node[elem, right = 1 of e-35] (e-34) {$34$};
+    \node[elem, below = 1 of e-35] (e-37) {$37$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=1] (e-34.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-35.west);
+    \path[pointer-left] (e-35.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-35.east) edge[bend right] (e-34.west);
+    \path[pointer-child] (e-35.south) edge[bend right] (e-37.north);
+    \path[pointer-left] (e-37.west) edge[in=20, out=160, looseness=7] (e-37.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=7] (e-37.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-parent] (e-37.north) edge[bend right] (e-35.south);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+    \path[pointer-left] (e-34.west) edge[bend right] (e-35.east);
+    \path[pointer-right] (e-34.east) edge[in=-160, out=-20, looseness=1] (e-51.west);
+
+    \draw[pointer-min] (e-34.north) -- ++(0, 0.5);
+
+    \node[left = 1 of e-51] (lla) {$\Longleftarrow$};
+    \node[above = 0 of lla] {$deletemin()$};
+
+    \node[elem, left = 3 of lla] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1 of e-51] (e-35) {$35$};
+    \node[elem, below = 1 of e-35] (e-37) {$37$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-35.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-35.west);
+    \path[pointer-left] (e-35.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-35.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-35.south) edge[bend right] (e-37.north);
+    \path[pointer-left] (e-37.west) edge[in=20, out=160, looseness=7] (e-37.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=7] (e-37.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-parent] (e-37.north) edge[bend right] (e-35.south);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+  \end{tikzpicture}
+  \caption{$insert(34)$, $insert(35)$, $insert(36)$, $deletemin()$,
+    $decreasekey(36, 34)$, $deletemin()$.
+  }
+\end{figure}
+
+Setzt man dies nun in dieser Weise fort, dann erh{\"a}lt man am Ende das
+gew{\"u}nschte Ergebnis (mit $\frac{n}{2} = 16 = 2^4$):
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=0.65, every node/.style={scale=0.65}, trim left = 0]
+    \node[elem] (e-51) {$51$};
+    \node[tree, below = -0.95 of e-51] (b1) {$B_1$};
+
+    \node[elem, right = 1 of e-51] (e-11) {$11$};
+    \node[elem, below = 1 of e-11] (e-13) {$13$};
+    \node[elem, below = 1 of e-13] (e-15) {$15$};
+
+    \node[below = 1 of e-15] (e-ldots) {\ldots};
+
+    \node[elem, below = 1 of e-ldots] (e-37) {$37$};
+    \node[elem, below = 1 of e-37] (e-39) {$39$};
+    \node[elem, below = 1 of e-39] (e-40) {$40$};
+
+    \path[pointer-left] (e-51.west) edge[in=20, out=160, looseness=2] (e-11.east);
+    \path[pointer-right] (e-51.east) edge[bend right] (e-11.west);
+    \path[pointer-left] (e-11.west) edge[bend right] (e-51.east);
+    \path[pointer-right] (e-11.east) edge[in=-160, out=-20, looseness=2] (e-51.west);
+    \path[pointer-child] (e-11.south) edge[bend right] (e-13.north);
+    \path[pointer-left] (e-13.west) edge[in=20, out=160, looseness=7] (e-13.east);
+    \path[pointer-right] (e-13.east) edge[in=-160, out=-20, looseness=7] (e-13.west);
+    \path[pointer-child] (e-13.south) edge[bend right] (e-15.north);
+    \path[pointer-parent] (e-13.north) edge[bend right] (e-11.south);
+    \path[pointer-left] (e-15.west) edge[in=20, out=160, looseness=7] (e-15.east);
+    \path[pointer-right] (e-15.east) edge[in=-160, out=-20, looseness=7] (e-15.west);
+    \path[pointer-child] (e-15.south) edge[bend right] (e-ldots.north);
+    \path[pointer-parent] (e-15.north) edge[bend right] (e-13.south);
+    \path[pointer-child] (e-ldots.south) edge[bend right] (e-37.north);
+    \path[pointer-parent] (e-ldots.north) edge[bend right] (e-15.south);
+    \path[pointer-left] (e-37.west) edge[in=20, out=160, looseness=7] (e-37.east);
+    \path[pointer-right] (e-37.east) edge[in=-160, out=-20, looseness=7] (e-37.west);
+    \path[pointer-child] (e-37.south) edge[bend right] (e-39.north);
+    \path[pointer-parent] (e-37.north) edge[bend right] (e-ldots.south);
+    \path[pointer-left] (e-39.west) edge[in=20, out=160, looseness=7] (e-39.east);
+    \path[pointer-right] (e-39.east) edge[in=-160, out=-20, looseness=7] (e-39.west);
+    \path[pointer-child] (e-39.south) edge[bend right] (e-40.north);
+    \path[pointer-parent] (e-39.north) edge[bend right] (e-37.south);
+    \path[pointer-left] (e-40.west) edge[in=20, out=160, looseness=7] (e-40.east);
+    \path[pointer-right] (e-40.east) edge[in=-160, out=-20, looseness=7] (e-40.west);
+    \path[pointer-parent] (e-40.north) edge[bend right] (e-39.south);
+  \end{tikzpicture}
+  \caption{Gew{\"u}nschtes Ergebnis: $B_1$ dessen Wurzel min. $4$ S{\"o}hne hat
+    und ein entarteter Baum $B_2$. Beide B{\"a}ume haben jeweils
+    $\frac{n}{2} = 16$ Knoten.
+  }
+\end{figure}
+
+\end{document}

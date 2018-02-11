@@ -1,0 +1,290 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath}
+\usepackage{mathtools}
+\usepackage[linesnumbered]{algorithm2e}
+\usepackage[margin=.75in]{geometry}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+\title{Assignment 4 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle
+
+{\noindent\bfseries Aufgabe 7}%
+\medskip%
+
+\begin{algorithm}
+  \SetKwProg{Fn}{Function}{}{}%
+  \SetKwInOut{Input}{Input}%
+%
+  \Input{
+    Boolsche Matrizen $A$, $B \in \{ 0, 1 \}^{n \times n}$
+  }%
+  \Fn{BPWM($A$, $B$)}{%
+    \tcp{berechnet eine Zeugenmatrix $W$ f{\"u}r $P = A * B$}%
+    $W = -AB$ \tcp{$W_{ij} < 0 \Longleftrightarrow$ Zeuge f{\"u}r $P_{ij}$ muss noch gefunden werden}
+    \tcp{teste alle Zweierpotenzen $r = 2^t$ zwischen $1$ und $n$}
+    \For{$t = 0, \ldots, \left\lfloor log(n) \right\rfloor$}{
+      $r = 2^t$\;
+      \Repeat{$\left\lceil 6.95 log(n) \right\rceil$ times done}{ \tcp{f{\"u}r $O(log(n))$ Runden}
+        w{\"a}hle $R \subseteq \{ 1, \ldots, n \}$ mit $|R| = r$\;
+        berechne $A^R$ und $B^R$ \tcp{vgl. Lemma (Folie 21)}
+        $Z = A^R B^R$\;
+        \tcp{teste ob neuer Zeuge f{\"u}r $P_{ij}$ gefunden wurde}
+        \ForAll{$(i, j)$}{
+          \lIf{$W_{ij}$ und $Z_{ij}$ ist Zeuge f{\"u}r $P_{ij}$}{$W_{ij} = Z_{ij}$}
+        }
+      }
+    }
+    \ForAll{$(i, j)$}{
+      \If{$W_{ij} < 0$}{
+        \tcp{kein Zeuge f{\"u}r $P_{ij}$ gefunden}
+        berechne $W_{ij}$ mit dem trivialen Algorithmus
+      }
+    }
+  }%
+\end{algorithm}
+
+\noindent
+Der $BPWM$-Algorithmus entspricht grunds{\"a}tzlich genau dem Algorithmus, der
+in der Vorlesung vorgestellt wurde (Folie 23 vom 07.04.2016). Es gibt lediglich
+eine {\"A}nderung: der konstante Faktor der inneren Schleife wurde von $3.77$ auf
+$6.95$ erh{\"o}ht. Genau diese {\"A}nderung hat dann auch den gew{\"u}nschten
+Effekt, dass der $BPWM$-Algorithmus die Laufzeit
+$O \left( MM \left( n \right) \cdot log^2(n) \right)$ mit
+Wahrscheinlichkeit $1 - n^{-2}$ garantiert. Dies wird nun bewiesen.
+
+\clearpage
+
+{\bfseries F{\"u}r den urspr{\"u}nglichen Fall:} \newline
+Aus der Vorlesung wissen wir, dass die Wahrscheinlichkeit sehr gering ist, dass
+der $BPWM$-Algorithmus keinen eindeutigen Zeugen findet:
+
+\begin{equation}
+  \left( 1 - \frac{1}{2e} \right) \quad \text{\ldots Wahrscheinlichkeit, dass
+    kein eindeutiger Zeuge gefunden wird (ein Lauf)}
+\end{equation}
+
+\begin{equation}
+  \left( 1 - \frac{1}{2e} \right)^{\left\lceil 3.77log(n) \right\rceil} \quad
+    \text{\ldots Wahrscheinlichkeit, dass kein eindeutiger Zeuge gefunden wird
+    ($\left\lceil 3.77log(n) \right\rceil$ L{\"a}ufe)}
+\end{equation}
+
+Ist $P_{ij} = 1$, so wird im randomisierten Teil des $BPWM$-Algorithmus ein Zeuge
+mit Wahrscheinlichkeit $\geq 1 - \frac{1}{n}$ gefunden.
+$\Longleftrightarrow$ da mit Wahrscheinlichkeit
+
+\begin{equation}
+  \left( 1 - \frac{1}{2e} \right)^{\left\lceil 3.77log(n) \right\rceil} \leq \frac{1}{n}
+\end{equation}
+
+kein eindeutiger Zeuge gefunden wird, wird also mit
+
+\begin{equation}
+  1 - \left( 1 - \frac{1}{2e} \right)^{\left\lceil 3.77log(n) \right\rceil} \geq 1 - \frac{1}{n} = 1 - n^{-1}
+\end{equation}
+
+ein eindeutiger Zeuge gefunden.
+
+Diese Schranke soll nun durch Erh{\"o}hung des konstanten Faktor von $3.77$ auf
+$6.95$ so angepasst werden, dass mit Wahrscheinlichkeit
+
+\begin{equation}
+  \geq 1 - \frac{1}{n^2} = 1 - n^{-2}
+\end{equation}
+
+die Laufzeit von $O \left( MM \left( n \right) \cdot log^2(n) \right)$ garantiert
+werden kann.
+
+{\bfseries F{\"u}r den angepassten Fall:} \newline
+Die Laufzeit $O \left( MM \left( n \right) \cdot log^2(n) \right)$ folgt, wenn
+der triviale Algorithmus nicht zu oft aufgerufen werden muss.
+
+Die Anpassung des konstanten Faktors auf $6.95$ soll also folgendes garantieren:
+\newline
+Ist $P_{ij} = 1$, so wird im randomisierten Teil ein eindeutiger Zeuge mit
+Wahrscheinlichkeit $\geq 1 - n^{-2}$ gefunden.
+
+\begin{proof}
+  Wir bezeichnen die Anzahl der Zeugen f{\"u}r $P_{ij}$ mit $w$.
+
+  Die {\"a}u{\ss}ere Schleife wird mindestens mit einem $r$ durchlaufen, sodass
+  $\frac{n}{2} \leq wr \leq n$ gilt. Die Wahrscheinlichkeit, dass in diesem Lauf
+  $R$ keinen eindeutigen Zeugen f{\"u}r $P_{ij}$ enth{\"a}lt, ist maximal
+
+  \begin{equation}
+    \left( 1 - \frac{1}{2e} \right)
+  \end{equation}
+
+  Die Wahrscheinlichkeit, dass kein eindeutiger Zeuge f{\"u}r $P_{ij}$ gefunden
+  wird, ist damit (f{\"u}r $\left\lceil 6.95 log(n) \right\rceil$ L{\"a}ufe)
+  maximal
+  
+  \begin{equation}
+    \left( 1 - \frac{1}{2e} \right)^{\left\lceil 6.95 log(n) \right\rceil} \leq n^{-2}
+  \end{equation}
+
+  \clearpage
+
+  Damit ergibt sich mit der Gegenwahrscheinlichkeit, dass ein eindeutiger Zeuge
+  mit einer Wahrscheinlichkeit
+
+  \begin{equation}
+    1 - \left( 1 - \frac{1}{2e} \right)^{\left\lceil 6.95 log(n) \right\rceil} \geq 1 - n^{-2}
+  \end{equation}
+
+  gefunden wird.
+
+  Dass $x = 6.95$ diese Ungleichung erf{\"u}llt, zeigen wir im Folgenden:
+
+  Die folgende Ungleichung muss erf{\"u}llt sein, damit Gleichung (8) gilt:
+
+  \begin{equation}
+    \left( 1 - \frac{1}{2e} \right)^{x log(n)} \leq n^{-2}
+  \end{equation}
+
+  Aus Gleichung (9) kann nun eine Schranke f{\"u}r $x$ berechnet werden.
+
+  \begin{equation}
+    \left( 1 - \frac{1}{2e} \right)^{x log(n)} \leq n^{-2}
+  \end{equation}
+
+  \begin{equation}
+    log \left( \left( 1 - \frac{1}{2e} \right)^{x log(n)} \right) \leq log \left( n^{-2} \right)
+  \end{equation}
+
+  \begin{equation}
+    x \cdot log \left( n \right) \cdot log \left( 1 - \frac{1}{2e} \right) \leq (-2) \cdot log \left( n \right)
+  \end{equation}
+
+  \begin{equation}
+    x \cdot log \left( 1 - \frac{1}{2e} \right) \leq -2
+  \end{equation}
+
+  Da $log \left( 1 - \frac{1}{2e} \right)$ eine negative Zahl ist, muss beim
+  Aufl{\"o}sen der Ungleichung auch $\leq$ in $\geq$ ge{\"a}ndert werden.
+
+  \begin{equation}
+    x \geq \frac{-2}{log \left( 1 - \frac{1}{2e} \right)} = 6.82006
+  \end{equation}
+
+  Aus Gleichung (14) ergibt sich also, dass alle $x \geq 6.82006$ Gleichung (9)
+  erf{\"u}llen.
+
+  Wir w{\"a}hlen nun $x = 6.95$, was Gleichung (14) erf{\"u}llt. \newline
+  Damit garantiert der angepasste $BPWM$-Algorithmus (vgl. Beginn Aufgabe 7),
+  eine Laufzeit von $O \left( MM \left( n \right) \cdot log^2(n) \right)$ mit
+  Wahrscheinlichkeit $1 - n^{-2}$  (vgl. Gleichung (8)).
+
+  Dass die Zeilen 14 - 18 (bzw. die Zeilen 14 - 16 vom originalen Code auf Folie
+  23) entfernt werden k{\"o}nnen, ergibt sich, da nachdem der randomisierte
+  Teil des Codes ausgef{\"u}hrt wurde, erwartet nurmehr
+
+  \begin{equation}
+    \frac{1}{n^2} \cdot n^2 = 1
+  \end{equation}
+
+  Zeugen fehlen.
+
+  W{\"u}rde man $x$ nun noch wesentlich h{\"o}her w{\"a}hlen, dann w{\"u}rde
+  nach der Ausf{\"u}hrung des randomisierten Teils des Codes erwartet nurmehr
+  $< 1$ Zeugen fehlen.
+
+  F{\"u}r alle (Un-)Gleichungen wurde der Logarithmus zur Basis 2 ($log_2(n)$)
+  angenommen.
+\end{proof}
+
+\newpage
+{\noindent\bfseries Aufgabe 8}%
+\medskip%
+
+\noindent
+Es sei $n \in \mathbb{N}$, $w \in \{ 1, \ldots, n \}$, $r \in \mathbb{N}$ mit
+
+\begin{equation}
+  \frac{n}{2 \cdot c} \leq w \cdot r \leq \frac{n}{c}\text{, mit} c \geq 2
+\end{equation}
+
+Eine Urne enthalte $n$ B{\"a}lle, von denen $w$ wei{\ss} und $(n - w)$ schwarz sind.
+Zieht man zuf{\"a}llig $r$ B{\"a}lle aus der Urne, ohne diese zwischendurch
+zur{\"u}ckzulegen, so ist
+\begin{center}
+  Pr[ genau ein wei{\ss}er Ball wurde gezogen ] = ?
+\end{center}
+
+\begin{proof}
+  \begin{equation}
+    \text{Pr[ genau ein wei{\ss}er Ball wurde gezogen ]}
+      = \frac{\binom{w}{1} \cdot \binom{n - w}{r - 1}}{\binom{n}{r}}
+  \end{equation}
+
+  \begin{equation}
+    = w \cdot \frac{(n - w)!}{(n - w - r + 1)! \cdot (r - 1)!} \cdot \frac{r! \cdot (n - r)!}{n!}
+  \end{equation}
+
+  \begin{equation}
+    = w \cdot r \cdot \frac{(n - w)!}{(n - w - r + 1)!} \cdot \frac{(n - r)!}{n!}
+  \end{equation}
+
+  \begin{equation}
+    = w \cdot r \cdot \left( \prod\limits_{i = 0}^{w - 1} \frac{1}{n - i} \right) \cdot \left( \prod\limits_{i = 0}^{w - 2} \left( \left( n - r \right) - i \right) \right)
+  \end{equation}
+
+  \begin{equation}
+    = w \cdot r \cdot \frac{1}{n} \left( \prod\limits_{i = 0}^{w - 2} \frac{n - r - i}{n - i - 1} \right)
+  \end{equation}
+
+  \begin{equation}
+    \geq \frac{w \cdot r}{n} \cdot \left( \prod\limits_{i = 0}^{w - 2} \frac{n - r - w + 1}{n - w} \right)
+  \end{equation}
+
+  \begin{equation}
+    = \frac{w \cdot r}{n} \cdot \left( \frac{\left( n - w \right) - \left( r - 1 \right)}{n - w} \right)^{w - 1}
+  \end{equation}
+
+  \begin{equation}
+    = \frac{w \cdot r}{n} \left( 1 - \frac{r - 1}{n - w} \right)^{w - 1}
+  \end{equation}
+   
+  \bigskip
+  \noindent
+  Weiters wissen wir, dass
+
+  \begin{equation}
+    \frac{r - 1}{n - w} \leq \frac{1}{w}
+      \Longleftrightarrow r \cdot  - w \leq n - w
+      \Longleftrightarrow r \cdot w \leq n \text{ (per Lemma)}
+  \end{equation}
+
+  \begin{equation}
+    \frac{n}{2 \cdot c} \leq w \cdot r \leq \frac{n}{c}
+      \Longleftrightarrow \frac{1}{2 \cdot c} \leq \frac{w \cdot r}{n} \leq \frac{1}{c}
+  \end{equation}
+
+  \begin{equation}
+    \left( 1 - \frac{1}{k} \right)^k \rightarrow \frac{1}{e} \text{ und }
+    \left( 1 - \frac{1}{k} \right)^{k - 1} \geq \frac{1}{e}
+  \end{equation}
+
+  \bigskip
+  \noindent
+  Setzt man nun (25) - (27) in (24) ein, dann folgt:
+
+  \begin{equation}
+    \geq \frac{1}{2 \cdot c} \cdot \left( 1 - \frac{1}{w} \right)^{w - 1}
+    \geq \frac{1}{2 \cdot c} \cdot \frac{1}{e} = \frac{1}{2 \cdot c \cdot e},
+    \qquad \forall c \geq 2
+  \end{equation}
+\end{proof}
+
+\noindent
+Das hei{\ss}t also, je gr{\"o}{\ss}er $c$ gew{\"a}hlt wird, desto kleiner wird die
+Wahrscheinlichkeit genau einen wei{\ss}en Ball aus den $n$ B{\"a}llen zu ziehen.
+
+\end{document}

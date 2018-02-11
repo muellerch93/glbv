@@ -1,0 +1,266 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[linesnumbered]{algorithm2e}
+\usepackage[margin=.75in]{geometry}
+\newenvironment{algorithmic}{%
+\renewenvironment{algocf}[1][h]{}{}% pass over the floating stuff
+\algorithm
+}{%
+\endalgorithm
+}
+\begin{document}
+%
+\title{Assignment 2 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle%
+\clearpage%
+%
+{\noindent\bfseries Theorieaufgabe}%
+
+\medskip%
+
+{\noindent\LARGE }%
+
+\medskip%
+\noindent
+F{\"u}r den Divide-\&-Conquer Algorithmus zur Berechnung von Segmentschnittpunkten
+werden zuerst zwei Datenstrukturen definiert, welche verwendet werden um die
+Elemente der Liste $S$ darzustellen.
+
+\paragraph{Endpunkt}
+Stellt einen Endpunkt eines horizontalen Segments dar.
+Jeder Endpunkt besitzt mindestens drei Felder:
+\begin{itemize}
+  \item[-] $x$ \ldots repr{\"a}sentiert die x-Koordinate des Endpunktes.
+  \item[-] $y$ \ldots repr{\"a}sentiert die y-Koordinate des Endpunktes.
+  \item[-] $ass$ \ldots Pointer zum zugeh{\"o}rigen Partner-Endpunkt.
+\end{itemize}
+
+\emph{Beispiel}: Das horizontale Segment mit den Endpunkten $(1, 2)$ und $(4, 2)$ wird
+durch zwei {\bfseries Endpunkte} $e_{1, 2}$ repr{\"a}sentiert. Die Felder von
+$e_{1, 2}$ sind wie folgt belegt:
+
+\begin{center}
+\begin{tabular}{l||l|l|l|}
+  \hline
+  $e_1$ & $.x = 1$ & $.y = 2$ & $.ass = e_2$ \tabularnewline
+  \hline
+  $e_2$ & $.x = 4$ & $.y = 2$ & $.ass = e_1$ \tabularnewline
+  \hline
+\end{tabular}
+\end{center}
+
+\paragraph{VertSegment}
+Stellt ein vertikales Segment dar. Jedes vertikale Segment besitzt mindestens
+drei Felder:
+\begin{itemize}
+  \item[-] $x$ \ldots repr{\"a}sentiert die x-Koordinate des vertikalen Segments.
+  \item[-] $y_{unten}$ \ldots repr{\"a}sentiert die untere y-Koordinate des
+    vertikalen Segments.
+  \item[-] $y_{oben}$ \ldots repr{\"a}sentiert die obere y-Koordinate des
+    vertikalen Segments.
+\end{itemize}
+
+\emph{Beispiel}: Das vertikale Segment mit den Endpunkten $(1, 6)$ und $(1, 1)$
+wird durch ein {\bfseries VertSegment} $v$ repr{\"a}sentiert. Die Felder von $v$
+sind wie folgt belegt:
+
+\begin{center}
+\begin{tabular}{l||l|l|l|}
+  \hline
+  $v$ & $.x = 1$ & $.y_{unten} = 1$ & $.y_{oben} = 6$ \tabularnewline
+  \hline
+\end{tabular}
+\end{center}
+
+%
+
+Im folgenden sollen mit mit $L(S_i)$, $R(S_i)$ und $V(S_i)$ die verwendeten einfach verkettete Listen bezeichnet werden.
+$L(S_i)$ enth{\"a}lt die y-Koordinaten aller linken Endpunkte in $S_i$, deren
+rechter Partner ($ass$) nicht in $S_i$ enthalten ist. Analog beinhaltet $R(S_i)$
+die y-Koordinaten aller rechten Endpunkte in $S_i$, deren linker Partner ($ass$)
+nicht in $S_i$ liegt. $V(S_i$) hingegen enth{\"a}lt die y-Intervalle ($y_{unten}$
+bis $y_{oben}$) der vertikalen Segmente in $S_i$.
+
+$L(S_i)$ und $R(S_i)$ sind nach steigenden y-Koordinaten sortierte, einfach
+verkettete Listen. $V(S_i)$ sind nach steigenden unteren Endpunkten ($y_{unten}$)
+sortierte, einfach verkettete Listen.
+
+Seien $l$, $l_i$ einfach verkettete Listen und $d$ ein Wert gespeichert in einer
+einfach verketteten Liste. Solche Listen haben mindestens folgende Felder:
+\begin{itemize}
+  \item[-] $head$ \ldots Erster Knoten einer Liste.
+\end{itemize}
+
+\noindent
+Weiters stellen sie folgende Funktionen zur Verf{\"u}gung:
+\begin{itemize}
+
+  \item[-] $l_1$.insertAll($l_2$) \ldots F{\"u}gt alle Element von Liste $l_2$ zu
+    Liste $l_1$ hinzu.
+  %\item[-] $l$.getHead() \ldots Gibt den ersten Knoten der Liste $l$ zur{\"u}ck.
+  \item[-] $l$.search($d$) \ldots Durchsucht die Liste $l$ nach einem Element $d$
+    und gibt dessen Knoten zur{\"u}ck (falls gefunden).
+  \item[-] $l$.insert($d$) \ldots F{\"u}gt das Element $d$ zu Liste $l$ hinzu.
+  \item[-] $l$.delete($d$) \ldots Entfernt das Element $d$ aus Liste $l$.
+\end{itemize}
+%
+Knoten einer solchen Liste stellen mindestens die folgenden Felder bereit:
+\begin{itemize}
+  \item[-] $next$ \ldots N{\"a}chster Knoten.
+  %\item[-] $data$ \ldots Korrespondierender Datensatz.
+\end{itemize}
+%
+\begin{algorithm}
+\begin{algorithmic}[1]
+  \SetKwProg{Fn}{Function}{}{}%
+  \SetKwInOut{Input}{Input}%
+  \SetKwInOut{Output}{Output}%
+%
+  \Input{
+    Liste $S$ bestehend aus vertikalen Segmenten ({\bfseries VertSegment}) und
+    Endpunkten ({\bfseries Endpunkt}) von horizontalen Segmenten. \newline%
+    $S$ sei nach horizontalen Koordinaten sortiert (Algorithmus ist leicht zu
+    adaptieren falls nicht). \newline%
+    Listen $L(S)$, $R(S)$ und $V(S)$, welche beim ersten (initialen) Aufruf der
+    Funktion leer sind. \newline%
+    Im Laufe der Rekursion werden diese drei Listen nach und nach mit Elementen
+    bef{\"u}llt.
+  }%
+  \Output{
+    Alle Schnittpunkte von vertikalen Segmenten mit horizontalen Segmenten
+  }%
+  \Fn{ReportCuts($S$, $L(S)$, $R(S)$, $V(S)$)}{%
+    \lIf{$|S| \leq 0$}{\Return}%
+    \If{$|S| = 1$}{
+      \tcp{Initialisierung von $L(S)$, $R(S)$ und $V(S)$}
+      Sei $s$ das einzige Element in $S$\;
+      \BlankLine%
+      \lIf{$s$ ist linker Endpunkt}{$L(S) \leftarrow \{s\}$, $R(S) \leftarrow \emptyset$, $V(S) \leftarrow \emptyset$}%
+      \BlankLine%
+      \lElseIf{$s$ ist rechter Endpunkt}{$L(S) \leftarrow \emptyset$, $R(S) \leftarrow \{s\}$, $V(S) \leftarrow \emptyset$}% 
+      \BlankLine%
+      \lElseIf{$s$ ist vertikales Segment}{$L(S) \leftarrow \emptyset$, $R(S) \leftarrow \emptyset$, $V(S) \leftarrow \{s\}$}% 
+      \BlankLine%
+      \Return \tcp*{Rekursionsende}%
+    }%
+    \BlankLine%
+    \lIf{$S$ ist nicht bez{\"u}glich x-Koordinaten sortiert}{Sortiere $S$ bez{\"u}glich x-Koordinaten}%
+    \BlankLine%
+    \tcc{
+      Divide Schritt. \newline
+      $m$ sei ein Integer (repr{\"a}sentiert die Mitte der Liste $S$). \newline
+      $S_1$ und $S_2$ seien Listen von vertikalen Segmenten und Endpunkten von
+      horizontalen Segmenten, sortiert bezüglich ihrer x-Koordinaten.
+    }%
+    \lIf{$|S|$ ist gerade}{$m \leftarrow |S| / 2$}%
+    \lElse{$m \leftarrow \lceil |S| / 2 \rceil$}%
+    $S_1 \leftarrow $ Liste der ersten $m$ Elemente aus $S$\;
+    $S_2 \leftarrow $ Liste der letzten $\left( |S| - m \right)$ Elemente aus $S$\;
+    \BlankLine%
+    \tcp{Conquer Schritt}%
+    ReportCuts($S_1$, $L(S_1)$, $R(S_1)$, $V(S_1)$)\;%
+    ReportCuts($S_2$, $L(S_2)$, $R(S_2)$, $V(S_2)$)\;%
+    \BlankLine%
+    \tcc{
+      $L(S_i)$, $R(S_i)$, $V(S_i)$ f{\"u}r $i = 1, 2$ bekannt $\Rightarrow$ Merge
+      Schritt \newline%
+      Berichte Segmentschnittpunkte (Paare $(h, v)$)%
+    }%
+    $h_1 \leftarrow R(S_2)$\;
+    DeletePartnersOf($h_1$, $L(S_1)$)\;
+    IntersectAndReport($h_1$, $V(S_1)$)\;
+    \BlankLine%
+    $h_2 \leftarrow L(S_1)$\;
+    DeletePartnersOf($h_2$, $R(S_2)$)\;
+    IntersectAndReport($h_2$, $V(S_2)$)\;
+    
+    \BlankLine%
+    \tcp{Aktualisiere $L(S)$, $R(S)$ und $V(S)$ f{\"u}r $S = S_1 \cup S_2$}
+    $L(S)$.insertAll($h_2)$)\;
+    $L(S)$.InsertAll($L(S_2)$)\;
+    \BlankLine%
+    $R(S)$.insertAll($h_1$)\;
+    $R(S)$.InsertAll($R(S_1)$)\;
+    \BlankLine%
+    $V(S)$.insertAll($V(S_1)$)\;
+    $V(S)$.InsertAll($V(S_2)$)\;
+  }%
+\end{algorithmic}
+\end{algorithm}
+%
+\begin{algorithm}                     
+\begin{algorithmic} [1]  
+  \SetKwProg{Fn}{Function}{}{}%                 % enter the algorithmic environment
+  \SetKwInOut{Input}{Input}%
+  \SetKwInOut{Output}{Output}%
+%
+  \Input{
+    Zwei einfach verkettete Listen $l_1$ und $l_2$. \newline%
+    $l_{1,2}$ beinhalten nur Endpunkte von horizontalen Segmenten.
+  }%
+  \Output{
+    Eine Liste, welche alle Elemente aus $l_1$ beinhaltet, die keinen Partner in
+    $l_2$ besitzen.
+  }%
+
+  \Fn{DeletePartnersOf($l_1$, $l_2$)}{
+    \lIf{$l_2$ ist leer}{\Return $l_1$}
+
+    $current \leftarrow l_2.head$\;
+    \While{$current \neq null$}{
+      \lIf{$l_1.search(current.ass)$ hat einen Partner gefunden}{
+        $l_1.delete(current)$
+      }
+      $current \leftarrow current.next$\;
+    }
+
+    \Return $l_1$\;
+  }
+\end{algorithmic}
+\end{algorithm}
+%
+\begin{algorithm}                     
+\begin{algorithmic} [1]  
+  \SetKwProg{Fn}{Function}{}{}%                 % enter the algorithmic environment
+  \SetKwInOut{Input}{Input}%
+  \SetKwInOut{Output}{Output}%
+%
+  \Input{
+    Zwei einfach verkettete Listen $h$ und $v$. \newline%
+    $h$ enth{\"a}lt Endpunkte von horizontalen Segmenten. \newline%
+    $v$ enth{\"a}lt vertikale Segmente. \newline%
+    $h$ und $v$ sind aufsteigend gem{\"a}{\ss} $y$ bzw. $y_{unten}$ sortiert.%
+  }%
+  \Output{
+    Berichtet alle Schnittpunkte zwischen Elementen aus $v$ und Elementen aus $h$.
+  }%
+  \Fn{IntersectAndReport($h$, $v$)}{
+    \tcp{Keine Schnittpunkte m{\"o}glich}%
+    \lIf{$h$ ist leer \textbf{oder} $v$ ist leer}{\Return}%
+    \BlankLine%
+    $currHor \leftarrow h$.head\;
+    $currVert \leftarrow v$.head\;
+    \While{$currHor \neq null$ und $currVert \neq null$}{
+      \lIf{$currHor.y > currVert.y_{oben}$}{$currVert = currVert.next$}%
+      \BlankLine%
+      \eIf{$currHor.y \geq currVert.y_{unten}$}{
+		    print($currVert.x$, $currHor.y$)\;
+		    \BlankLine%
+        $tmpHor \leftarrow currHor.next$\;
+        \While{$tmpHor$ $\neq$ $null$ \textbf{und} $tmpHor.y < currVert.y_{oben}$}
+        {
+			    print($currVert.x$, $tmpHor.y$)\;
+			    $tmpHor \leftarrow tmpHor.next$\;
+		    }
+		    $currVert \leftarrow currVer.next$\;
+      }{
+        \lIf{$currVert \neq null$}{$currHor \leftarrow currHor.next$}
+      }
+	  }
+  }
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}

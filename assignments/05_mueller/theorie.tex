@@ -1,0 +1,100 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath}
+\usepackage{mathtools}
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+\title{Assignment 5 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle
+
+{\noindent\bfseries Aufgabe 9}%
+\medskip%
+
+\noindent
+Zu zeigen: Sei $m < i$: $x_{i}$ Vorfahre von $x_{m}$ $\Leftrightarrow$ $P_{min}(\lbrace x_{m},...,x_{i} \rbrace)=x_{i}$ \\
+
+\begin{proof}
+\noindent
+
+\noindent
+i) $"\Leftarrow"$\\
+Annahme: $P_{min}(\lbrace x_{m},...,x_{i} \rbrace)=x_{i}$\\
+Knoten werden nach Prioritäten in den Suchbaum eingefügt $\Rightarrow$ aus der Menge $\lbrace x_{m},...,x_{i} \rbrace$ wird $x_{i}$ als erster eingefügt.\\
+Alle Knoten $x_{k}$ mit Schlüsseln $k$, die vor $x_{i}$ eingefügt wurden, haben die Eigenschaft: $k < key(x_{m})$ oder $k > key(x_{i})$\footnote[1]{Würde $key(x_{m}) \leq k \leq key(x_{i})$ gelten wäre der Knoten mit dem Schlüssel $k$ Teil der Menge $\lbrace x_{m},...,x_{i} \rbrace$ und würde wegen $P_{min}(\lbrace x_{m},...,x_{i} \rbrace)=x_{i}$ nach $x_{i}$ eingefügt werden}.\\
+Wenn $x_{j} \in \lbrace x_{m},...,x_{i-1} \rbrace$ eingefügt wird, durchläuft $x_{j}$ denselben Pfad wie $x_{i}$ \footnote[2]{Es gilt für alle sich im Baum befindlichen Schlüssel $k$, 
+$k < key(x_{m}) \leq key(x_{j}) \leq key(x_{i})$  oder $k > key(x_{i}) \geq key(x_{j}) \geq key(x_{m})$ } und wird im linken Unterbaum von $x_{i}$ eingefügt.
+Es gilt daher: $x_{j}$ ist Nachfahre von $x_{i}$ und insbesonders $x_{m}$ ist Nachfahre von $x_{i}$ $\implies$ $x_{i}$ ist Vorfahre von $x_{m}$\\
+
+\noindent
+ii) $"\Rightarrow"$\\
+Sei: $P_{min}(\lbrace x_{m},...,x_{i} \rbrace)=x_{j}$; Zeige: $i=j$\\
+Annahme: $x_{i}$ Vorfahre von $x_{m}$\\
+Knoten werden nach Prioritäten in den Suchbaum eingefügt $\Rightarrow$ aus der Menge $\lbrace x_{m},...,x_{i} \rbrace$ wird $x_{j}$ als erster eingefügt.\\
+Alle Knoten $x_{k}$ mit Schlüssel $k$, die vor $x_{j}$ eingefügt wurden, haben die Eigenschaft: $k < key(x_{m})$ oder $k > key(x_{i})$.
+Jeder Knoten $x_{l}$ aus $\lbrace x_{m},...,x_{i} \rbrace$ mit $l \neq j$ muss beim Einfügen denselben Pfad durchlaufen wie $x_{j}$.\\
+Falls $j \neq i,m$: $x_{m}$ landet im linken Unterbaum von $x_{j}$ und $x_{i}$ im rechten Unterbaum von $x_{j}$ $\implies$ $x_{i}$ ist kein Vorfahr von $x_{m}$.\\
+Falls $j=m$: $x_{i}$ landet im rechten Unterbaum von $x_{m} \implies x_{m}$ ist Vorfahre von $x_{i}$\\
+$\implies j=i$ 
+\end{proof}
+{\noindent\bfseries Aufgabe 10}%
+\medskip%\\
+
+\noindent
+Zu zeigen: Sei $m$ die Anzahl der Schlüssel, die kleiner als der gesuchte Schlüssel $k$ sind. Die erwartete Anzahl von Knoten auf dem Suchpfad ist $H_{m}+H_{n-m}$. 
+\begin{proof}
+\noindent
+
+\noindent
+Sei $x_{k}$ der Knoten mit Schlüssel $k$ der ohne Berücksichtigung der Prioritäten in den gegebenen Suchbaum imaginär eingefügt wird.\\
+
+\noindent
+Sei:\\
+  \[
+    X_{k,i}=\left\{
+                \begin{array}{ll}
+                  1\text{, } x_{i} \text{ ist Vorfahr des neuen imaginären Knotens } x_{k} \text{ mit } key(x_{k})=k\\
+                  0 \text{, sonst}\\
+                
+                \end{array}
+              \right.
+  \]
+und:\\
+Sei $X_{k}$ die Anzahl der Knoten auf dem Pfad von der Wurzel nach Knoten $x_{k}$ (ohne $x_{k}$, denn $x_k$ existiert nur imaginär).
+\begin{equation}
+X_{k}=\sum_{i<k} X_{k,i} +\sum_{i>k} X_{k,i}
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=E\left[\sum_{i<k} X_{k,i}\right] +E\left[\sum_{i>k} X_{k,i}\right]
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=\sum_{i<k} E\left[X_{k,i}\right] +\sum_{i>k} E\left[X_{k,i}\right]
+\end{equation}
+F1$(i<k)$: gilt für $m$ Knoten des Suchbaums (aus der Angabe)\\
+\begin{equation}
+E\left[X_{k,i}\right]=Pr\left[P_{min}(\lbrace x_{1},...,x_{i}\rbrace)=x_{i}\right]=\frac{1}{i}
+\end{equation}
+F2$(i>k)$: gilt für $n-m$ Knoten des Suchbaums\\
+\begin{equation}
+E\left[X_{k,i}\right]=Pr\left[P_{min}(\lbrace x_{i},...,x_{n}\rbrace)=x_{i}\right]=\frac{1}{n-i+1}
+\end{equation}
+Also:\\
+\begin{equation}
+E\left[X_{k}\right]=\sum_{i<k} E\left[X_{k,i}\right] +\sum_{i>k} E\left[X_{k,i}\right]
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=\sum_{i=1}^{m} \frac{1}{i} +\sum_{i=m+1}^{n} \frac{1}{n-i+1}
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=\left(1+\frac{1}{2}+...+\frac{1}{m}\right)+\left(\frac{1}{n-(m+1)+1}+...+\frac{1}{n-n+1}\right)
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=\left(1+\frac{1}{2}+...+\frac{1}{m}\right)+\left(\frac{1}{n-m}+\frac{1}{n-m-1}+...+1\right)
+\end{equation}
+\begin{equation}
+E\left[X_{k}\right]=H_{m}+H_{n-m}
+\end{equation}
+\end{proof}
+\end{document}

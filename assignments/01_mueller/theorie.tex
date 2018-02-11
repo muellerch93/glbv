@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[linesnumbered]{algorithm2e}
+\usepackage[margin=.75in]{geometry}
+\newenvironment{algorithmic}{%
+\renewenvironment{algocf}[1][h]{}{}% pass over the floating stuff
+\algorithm
+}{%
+\endalgorithm
+}
+\begin{document}
+%
+\title{Assignment 1 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle%
+\clearpage%
+%
+
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+  \SetKwProg{Fn}{Function}{}{}%
+  \SetKwInOut{Input}{Input}%
+  \SetKwInOut{Output}{Output}%
+  \SetKwInOut{Variables}{Variables}%
+%
+  \Input{
+    Menge $S$ bestehend aus vertikalen Segmenten und Endpunkten von horizontalen Segmenten, welche bezüglich ihrer x-und y Koordinaten  paarweise verschieden sind. \\
+    $S$ sei nach horizontalen Koordinaten sortiert (Algorithmus ist leicht zu adaptieren falls nicht).
+  }%
+  \Output{Alle Schnittpunkte von vertikalen Segmenten mit horizontalen Segmenten, von denen mindestens ein Endpunkt in $S$ ist}%
+  \Variables{
+    $L(S)$ enth{\"a}lt die y-Koordinaten aller linken Eckpunkte in $S$, deren rechter Partner nicht in $S$. \\
+    $R(S)$ enth{\"a}lt die y-Koordinaten aller rechten Eckpunkte in $S$, deren linker Partner nicht in $S$. \\
+    $V(S)$ enth{\"a}lt die y-Intervalle der vertikalen Segmente in $S$. \\
+    $L(S)$ und $R(S)$ sind nach steigenden y-Koordinaten sortierte, verkettete Listen. \\
+    $V(S)$ sind nach steigenden unteren Endpunkten sortierte, verkettete Listen.
+  }%
+  \Fn{ReportCuts($S$)}{%
+    \If{$|S| \le 1$}{
+      \tcp{Initialisierung von $L(S)$, $R(S)$ und $V(S)$}
+      Sei $s = (x, y)\in S$\;
+      \BlankLine%
+      \lIf{$s$ ist linker Endpunkt}{$L(S) \leftarrow \{y\}$, $R(S) \leftarrow \emptyset$, $V(S) \leftarrow \emptyset$}%
+      \BlankLine%
+      \lElseIf{$s$ ist rechter Endpunkt}{$L(S) \leftarrow \emptyset$, $R(S) \leftarrow \{y\}$, $V(S) \leftarrow \emptyset$}% 
+      \BlankLine%
+      \lElseIf{$S$ enth{\"a}lt nur das vertikale Segmente $v$}{$L(S) \leftarrow \emptyset$, $R(S) \leftarrow \emptyset$, $V(S) \leftarrow \{[y_1, y_2]\}$}% 
+      \BlankLine%
+      \Return \tcp*{Rekursionsende}%
+    }%
+  
+    \BlankLine\BlankLine%
+    \tcp{Divide Schritt}%
+    Teile $S$ per vertikaler Trennlinie in zwei (nahezu) gleich gro{\ss}e Teile $S_1$ und $S_2$ auf\;%
+    \BlankLine\BlankLine%
+    \tcp{Conquer Schritt}%
+    ReportCuts($S_1$)\;%
+    ReportCuts($S_2$)\;%
+    \BlankLine\BlankLine%
+    \tcp{$L(S_i)$, $R(S_i)$, $V(S_i)$ f{\"u}r $i = 1, 2$ bekannt $\Rightarrow$ Merge Schritt}
+    \tcp{Berichte Segmentschnittpunkte (Paare $(h, v)$)}
+    IntersectAndReport($R(S_2) \setminus L(S_1)$,$V(S_1)$)\;
+    IntersectAndReport($L(S_1) \setminus R(S_2)$,$V(S_2)$)\;
+    
+    \BlankLine\BlankLine%
+    \tcp{Aktualisiere $L(S)$, $R(S)$ und $V(S)$ f{\"u}r $S = S_1 \cup S_2$}
+    $L(S) = \left( L(S_1) \setminus R(S_2) \right) \cup L(S_2)$\;
+    $R(S) = \left( R(S_2) \setminus L(S_1) \right) \cup R(S_1)$\;
+    $V(S) = V(S_1) \cup V(S_2)$\;
+  }%
+
+
+  \end{algorithmic}
+\end{algorithm}
+\begin{algorithm}                     
+\begin{algorithmic} [1]  
+\SetKwProg{Fn}{Function}{}{}%                 % enter the algorithmic environment
+  \Fn{IntersectAndReport($H(S)$,$V(S)$)}{
+  	\tcp{Sei $\dot{V}=(v_1,v_2,..,v_n)$ mit $v_i=(y_{unten},y_{oben})$ eine einfach verkettete aufsteigend sortierte (gemäß $y_{unten}$) Liste die alle Element aus $V(S)$ enthält.}
+  	\tcp{Sei $\dot{H}=(h_1,h_2,..,h_n)$ mit $h_i=(x,y)$ eine einfach verkettete aufsteigend sortierte (gemäß $y$) Liste die alle Element aus $V(S)$ enthält.}
+	$currHor \leftarrow h_1$\;
+	$currVert \leftarrow v_1$\;
+\While{$currVert$ $\neq$ $null$}{
+	
+	\eIf{intersects($currVert$,$currHor$)}{
+		print($currHor$,$currVert$)\;
+		$tmpHor \leftarrow currHor.next$\;
+		\While{$tmpHor$ $\neq$ $null$ \textbf{and} intersects($currVert$,$tmpHor$)}{
+			print($tmpHor$,$currVert$)\;
+			$tmpHor \leftarrow tmpHor.next$\;
+		}
+		$currVert \leftarrow currVer.next$\;
+	}{
+		\If{$currHor.y < currVert.y_{unten}$}{
+			$currHor \leftarrow currHor.next$\;
+			}
+	}
+}
+  
+  }
+\end{algorithmic}
+\end{algorithm}
+
+
+\end{document}

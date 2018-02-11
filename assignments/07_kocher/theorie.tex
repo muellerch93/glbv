@@ -1,0 +1,322 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage[margin=1in]{geometry}
+\usepackage{multicol}
+
+\usetikzlibrary{positioning, shapes.geometric}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+\title{Assignment 7 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle
+
+{\bfseries Aufgabe 14}%
+
+Sei $U = \left\{ 0, \ldots, 30 \right\}$ und
+$S = \left\{ 2, 4, 7, 11, 12, 18, 19, 22, 26, 29 \right\}$. Benutzen Sie das
+zweistufige Schema aus der Vorlesung um eine perfekte Hash-Funktion mit $k = 3$,
+$N = 31$ und $n = 10$ zu finden. Berechnen Sie f{\"u}r $i = 0, \ldots, n - 1$ die
+Werte $W_i$, $b_i$, $m_i$, $k_i$ und die Funktion $h_{k_i}$. Geben Sie
+anschlie{\ss}end f{\"u}r jedes Element aus $S$ die Position dieses Elementes in
+der Hash-Tafel an.
+
+Die Hash-Funktion f{\"u}r die erste Stufe wird allgemein wie folgt berechnet:
+\begin{equation}
+  h_k \left( x \right) = \left( \left( k \cdot x \right)\text{ mod }N \right)\text{ mod }m
+\end{equation}
+wobei $m = n = |S| = 10$ ist.
+
+Setzt man nun die Werte aus der Angabe ein - $k = 3$, $N = 31$ und $n = 10$ -
+bekommt man die folgende konkrete Hash-Funktion f{\"u}r die erste Stufe:
+\begin{equation}
+  h_3 \left( x \right) = \left( \left( 3 \cdot x \right)\text{ mod }31 \right)\text{ mod }10
+  \label{eq:hk}
+\end{equation}
+
+Nun wird f{\"u}r $i = 0, \ldots, n - 1 = 9$
+\parskip0pt\begin{enumerate}
+  \item $W_i = \left\{ x \in S: h_k \left( x \right) = i \right\}$ mit $h_k = h_3$
+  \item $b_i = | W_i |$
+  \item $m_i = 2 \cdot b_i \cdot \left( b_i - 1 \right) + 1$
+\end{enumerate}
+berechnet, siehe Table~\ref{tbl:step-2}.
+
+\begin{multicols}{2}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l|l|l|l}
+    $i$ & $W_i$           & $b_i$ & $m_i$ \tabularnewline
+    \hline\hline
+    $0$ &                 & $0$   & $1$   \tabularnewline
+    \hline
+    $1$ & $7$             & $1$   & $1$   \tabularnewline
+    \hline
+    $2$ & $4$, $11$       & $2$   & $5$   \tabularnewline
+    \hline
+    $3$ & $18$            & $1$   & $1$   \tabularnewline
+    \hline
+    $4$ & $22$            & $1$   & $1$   \tabularnewline
+    \hline
+    $5$ & $12$, $29$      & $2$   & $5$   \tabularnewline
+    \hline
+    $6$ & $2$, $19$, $26$ & $3$   & $13$   \tabularnewline
+    \hline
+    $7$ &                 & $0$   & $1$   \tabularnewline
+    \hline
+    $8$ &                 & $0$   & $1$   \tabularnewline
+    \hline
+    $9$ &                 & $0$   & $1$   \tabularnewline
+    \hline
+  \end{tabular}
+  \caption{Werte f{\"u}r Schritt 2 des zweistufigen Schemas aus der Vorlesung.}
+  \label{tbl:step-2}
+\end{table}
+\columnbreak%
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l|l}
+    $i$ & $s_i$ \tabularnewline
+    \hline\hline
+    $0$ & $0$   \tabularnewline
+    \hline
+    $1$ & $1$   \tabularnewline
+    \hline
+    $2$ & $2$   \tabularnewline
+    \hline
+    $3$ & $7$   \tabularnewline
+    \hline
+    $4$ & $8$   \tabularnewline
+    \hline
+    $5$ & $9$   \tabularnewline
+    \hline
+    $6$ & $14$  \tabularnewline
+    \hline
+    $7$ & $27$  \tabularnewline
+    \hline
+    $8$ & $28$  \tabularnewline
+    \hline
+    $9$ & $29$  \tabularnewline
+    \hline
+  \end{tabular}
+  \caption{Werte f{\"u}r Schritt 3 des zweistufigen Schemas aus der Vorlesung.}
+  \label{tbl:step-3}
+\end{table}
+\end{multicols}
+
+Nun m{\"u}ssen $k_i$ so gew{\"a}hlt werden, dass
+\begin{equation}
+  h_{k_i}: x \longrightarrow \left( \left( k_i \cdot x \right)\text{ mod }N \right)\text{ mod }m_i
+  \label{eq:step-2}
+\end{equation}
+eingeschr{\"a}nkt auf $W_i$ injektiv ist. Durch diese zweite Stufe werden jene
+Eintr{\"a}ge $W_i$ mit $b_i = | W_i | > 1$ auf mehrere "Unterbuckets" abgebildet.
+
+$b_i > 1$ ist f{\"u}r $i = \left\{ 2, 5, 6 \right\}$ der Fall. F{\"u}r
+$i = \left\{ 1, 3, 4 \right\}$ ben{\"o}tigen wir keine zus{\"a}tzliche
+Hash-Funktion $h_{k_i}$, da nur ein einziger Wert im Bucket vorhanden ist - eine
+weitere Aufteilung auf "Unterbuckets" macht also keinen Sinn.
+
+Wir berechnen nun $k_i$ nach Gleichung~\ref{eq:step-2} f{\"u}r
+$\left( i, W_i, m_i \right) \in \left\{ \left( 2, \left\{ 4, 11 \right\}, 5 \right), \left( 5, \left\{ 12, 29 \right\}, 5 \right), \left( 6, \left\{ 2, 19, 26 \right\}, 13 \right) \right\}$
+und $N = 31$:
+\parskip0pt\begin{itemize}
+  \item $i = 2$, $W_2 = \left\{ 4, 11 \right\}$ und $m_2 = 5$: \newline
+    W{\"a}hle $k_2 = 1$: Ist $h_{k_2}$ eingeschr{\"a}nkt auf $W_2$ injektiv?
+    \newline $h_{k_2} \left( 4 \right) = 4$ und $h_{k_2} \left( 11 \right) = 1$
+    $\Rightarrow$ $h_{k_2}$ ist eingeschr{\"a}nkt auf $W_2$ injektiv.
+  \item $i = 5$, $W_5 = \left\{ 12, 29 \right\}$ und $m_5 = 5$: \newline
+    W{\"a}hle $k_5 = 1$: Ist $h_{k_5}$ eingeschr{\"a}nkt auf $W_5$ injektiv?
+    \newline $h_{k_5} \left( 12 \right) = 2$ und $h_{k_5} \left( 29 \right) = 4$
+    $\Rightarrow$ $h_{k_5}$ ist eingeschr{\"a}nkt auf $W_5$ injektiv.
+  \item $i = 6$, $W_6 = \left\{ 2, 19, 26 \right\}$ und $m_6 = 13$: \newline
+    W{\"a}hle $k_6 = 1$: Ist $h_{k_6}$ eingeschr{\"a}nkt auf $W_6$ injektiv?
+    \newline $h_{k_6} \left( 2 \right) = 2$, $h_{k_6} \left( 19 \right) = 6$ und
+    $h_{k_6} \left( 26 \right) = 0$ $\Rightarrow$ $h_{k_6}$ ist eingeschr{\"a}nkt
+    auf $W_6$ injektiv.
+\end{itemize}
+
+Daraus ergeben sich f{\"u}r die zweite Stufe folgende Hash-Funktionen f{\"u}r
+$i \in \left\{ 2, 5, 6 \right\}$
+\begin{equation}
+  h_{k_2} \left( x \right) = h_{k_5} \left( x \right) = \left( x\text{ mod }31 \right)\text{ mod }5
+  \label{eq:hk1}
+\end{equation}
+\begin{equation}
+  h_{k_6} \left( x \right) = \left( x\text{ mod }31 \right)\text{ mod }13
+\end{equation}
+und f{\"u}r $i \in \left\{ 0, 1, 3, 4, 7, 8, 9 \right\}$
+\begin{equation}
+  h_{k_0} \left( x \right) = h_{k_1} \left( x \right) = h_{k_3} \left( x \right) = h_{k_4} \left( x \right) = h_{k_7} \left( x \right) = h_{k_8} \left( x \right) = h_{k_9} \left( x \right) = \left( x\text{ mod }31 \right)\text{ mod }1
+  \label{eq:hki}
+\end{equation}
+
+Basierend auf diesen Hash-Funktionen $h_{k_0}$ bis $h_{k_9}$ wird nun der finale
+Schritt vorgenommen. Zuerst werden $s_i = \sum_{j < i} m_j$ berechnet und dann
+wird $x \in S$ in Tafelposition $T\left[ s_i + j \right]$ gespeichert, wobei
+$i = h_k \left( x \right)$ (erste Hash-Funktion, siehe Gleichung~\ref{eq:hk}) und
+$j = h_{k_i} \left( x \right)$ (zweite Hash-Funktion, siehe
+Gleichungen~\ref{eq:hk1} -~\ref{eq:hki}).
+
+F{\"u}r die Berechnung von $s_i$ f{\"u}r $i = \left\{ 0, \ldots, 9 \right\}$ siehe
+Table~\ref{tbl:step-3}. Die resultierenden Positionen in der Hash-Tafel sind in
+Table~\ref{tbl:final-pos} aufgelistet.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l|l}
+    $x$ & $s_i + j$ (Position von $x$)  \tabularnewline
+    \hline\hline
+    $2$ & $14 + 2 = \textbf{16}$        \tabularnewline
+    \hline
+    $4$ & $2 + 4 = \textbf{6}$          \tabularnewline
+    \hline
+    $7$ & $1 + 0 = \textbf{1}$          \tabularnewline
+    \hline
+    $11$ & $2 + 1 = \textbf{3}$         \tabularnewline
+    \hline
+    $12$ & $9 + 2 = \textbf{11}$         \tabularnewline
+    \hline
+    $18$ & $7 + 0 = \textbf{7}$         \tabularnewline
+    \hline
+    $19$ & $14 + 6 = \textbf{20}$       \tabularnewline
+    \hline
+    $22$ & $8 + 0 = \textbf{8}$         \tabularnewline
+    \hline
+    $26$ & $14 + 0 = \textbf{14}$       \tabularnewline
+    \hline
+    $29$ & $9 + 4 = \textbf{13}$        \tabularnewline
+    \hline
+  \end{tabular}
+  \caption{Finale Positionen von $x \in S$ in der Hash-Tafel.}
+  \label{tbl:final-pos}
+\end{table}
+
+\clearpage
+
+{\bfseries Aufgabe 15}%
+
+Wir nehmen an, dass in einer Datenstruktur die $i$-te Operation Kosten $c_i$
+verursacht, wobei $c_i = i$ f{\"u}r alle $i$ der Form $2^k + 1$ ($k$ ist eine
+nat{\"u}rliche Zahl) und $c_i = 2$ sonst. Zeigen Sie, dass die amortisierten
+Kosten einer Operation immer konstant sind.
+\begin{multicols}{2}
+\begin{center}
+$c_i=\begin{cases} i$, falls $i=2^k+1$ mit $k \in \mathbb{N}  \\ 2$, sonst.$  \end{cases}$
+\end{center}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l|l}
+    $Op_i$ & $c_i$ \tabularnewline
+    \hline\hline
+    $1$ & $2$        \tabularnewline
+    \hline
+    $2$ & $2$          \tabularnewline
+    \hline
+    $3$ & $3$          \tabularnewline
+    \hline
+    $4$ & $2$         \tabularnewline
+    \hline
+    $5$ & $5$         \tabularnewline
+    \hline
+    $6$ & $2$         \tabularnewline
+    \hline
+    $7$ & $2$       \tabularnewline
+    \hline
+    $8$ & $2$         \tabularnewline
+    \hline
+    $9$ & $9$       \tabularnewline
+    \hline
+    $10$ & $2$        \tabularnewline
+    \hline
+  \end{tabular}
+  \caption{Beispiel für $n=10$ Operationen}
+  \label{tbl:10-ops}
+\end{table}
+\end{multicols}
+Aggregat-Methode mit $n$ Operationen\\
+O. B. d. A. betrachten wir den Fall $n=2^k$ mit $k \in \mathbb{N}$\\
+\begin{enumerate}
+
+\item  Gesamtkosten $C_1$ der Menge ($A_1$) der Operationen ($a_i$)  für die $i=2^j+1$ mit $j \in \mathbb{N}$ und $i\leq n$ gilt:\\
+Für alle $a_i$ aus $A_1$ gilt $ 0 \leq j \leq k-1$:
+\begin{equation}
+C_1=(2^0+1)+(2^1+1)+(2^2+1)+...+(2^{k-1}+1)
+\end{equation}
+wegen $n=2^k \implies k=\operatorname{ld}(n)$ gilt:
+\begin{equation}
+C_1=(2^0+1)+(2^1+1)+(2^2+1)+...+(2^{\operatorname{ld}(n)-1}+1)
+\end{equation}
+\begin{equation}
+C_1={\operatorname{ld}(n)}+\sum_{i=0}^{\operatorname{ld}(n)-1} 2^{i}
+\end{equation}
+Es gilt: (siehe \ref{proof})
+\begin{equation}
+\sum_{i=0}^{n} 2^{i}=2^{n+1}-1
+\end{equation}
+Also:\\
+\begin{equation}
+C_1={\operatorname{ld}(n)}+2^{\operatorname{ld}(n)}-1
+\end{equation}
+\item Gesamtkosten $C_2$ der Menge ($A_2$) der Operationen ($a_i$) für die $i\neq2^j+1$ mit $j \in \mathbb{N}$ gilt:\\
+$|A1|={\operatorname{ld}(n)}$ und $|A_1|+|A_2|=n \implies |A_2|=n-{\operatorname{ld}(n)} $
+\begin{equation}
+C_2=2 \cdot ({n-\operatorname{ld}(n)})
+\end{equation}
+\end{enumerate}
+Seien $C$ die Gesamtkosten der $n$ Operationen dann:
+\begin{equation}
+C=C_1+C_2={\operatorname{ld}(n)}+2^{\operatorname{ld}(n)}-1+2 \cdot ({n-\operatorname{ld}(n)})
+\end{equation}
+\begin{equation}
+C={\operatorname{ld}(n)}+n-1+2 n-2{\operatorname{ld}(n)}
+\end{equation}
+\begin{equation}
+C=3n-{\operatorname{ld}(n)}-1
+\end{equation}
+\begin{equation}
+3n-{\operatorname{ld}(n)}-1
+\end{equation}
+\begin{equation}
+a_i=\frac{3n-{\operatorname{ld}(n)}-1}{n} < 3
+\end{equation}
+Die amortisierten Kosten einer Operation sind höchstens $3$ und somit in $O(1)$.
+\newpage
+\begin{proof}
+
+
+\begin{equation}
+\sum_{i=0}^{n} 2^{i}=2^{n+1}-1
+\end{equation}
+IB: $n=0$ \\
+\begin{equation}
+\sum_{i=0}^{0} 2^{i}= 2^0 = 1 = 2^1-1 =2^{0+1}-1
+\end{equation}
+IH: Für ein beliebes aber festes $k \in \mathbb{N}$ gilt: 
+\begin{equation}
+\sum_{i=0}^{k} 2^{i}=2^{k+1}-1
+\end{equation}
+IS: $k \rightarrow k+1$\\
+Zu zeigen:
+\begin{equation}
+ \sum_{i=0}^{k+1} 2^{i}=2^{k+2}-1
+\end{equation}
+\begin{align*}
+ \sum_{i=0}^{k+1} 2^{i}=\sum_{i=0}^{k} 2^{i} +2^{k+1} \\
+ =2^{k+1}-1+2^{k+1} \\
+ =2\cdot2^{k+1}-1 \\
+ =2^{k+2}-1
+\end{align*}
+
+\end{proof}
+\end{document}

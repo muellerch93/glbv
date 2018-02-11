@@ -1,0 +1,202 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath}
+\usepackage{mathtools}
+
+\usepackage[utf8]{inputenc}
+\begin{document}
+\title{Assignment 3 \\ Advanced Algorithms \& Data Structures PS}%
+\author{Christian Müller 1123410 \\ Daniel Kocher, 0926293}%
+\maketitle
+
+{\noindent\bfseries Aufgabe 5}%
+\medskip%
+ 
+\begin{proof}
+\noindent
+Zu zeigen:
+\begin{enumerate}
+  \item[i.)] Ist $D_{ij}$ ungerade, so gilt $D^{'}_{kj} \leq D^{'}_{ij}$ für alle Nachbarn k von i und
+  \item[ii.)] es gibt einen Knoten $k \in \Gamma(i)$, so dass $D^{'}_{kj} < D^{'}_{ij}$.
+\end{enumerate}
+\begin{equation}
+  D_{ij}(\text{mod } 2) = 1
+\end{equation}
+\begin{equation}
+  \implies \exists l \in \mathbb{N}: D_{ij} = 2l - 1
+\end{equation}
+
+\noindent
+und es gilt (Lemma aus VO):
+\begin{equation}
+  D_{ij} = 2D^{'}_{ij} - 1 \text{(f{\"u}r $D_{ij}$ ungerade)}
+\end{equation}
+\begin{equation}
+  D_{ij} = 2D^{'}_{ij} \text{(f{\"u}r $D_{ij}$ gerade)}
+\end{equation}
+
+\noindent
+aus (2) und (3) folgt: 
+\begin{equation}
+  2l-1 = 2D^{'}_{ij}-1 \implies D^{'}_{ij} = l
+\end{equation}
+
+\noindent
+Der Knoten k ist direkter Nachbar von i also gilt (Lemma aus VO):
+\begin{equation}
+  D_{ij} - 1 \leq D_{kj} \leq D_{ij} + 1
+\end{equation}
+
+\noindent
+Fall 1: $D_{kj} = D_{ij} - 1$
+\begin{equation}
+  D_{kj} = D_{ij} - 1 = 2l - 2
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 0 \xRightarrow{(4)} D_{kj}=2D^{'}_{kj}
+\end{equation}
+\begin{equation}
+  2l-2 = 2D^{'}_{kj} \implies D^{'}_{kj}=l-1
+\end{equation}
+\begin{equation}
+  D^{'}_{ij} =l \wedge D^{'}_{kj} =l-1 \implies D^{'}_{kj} < D^{'}_{ij}
+\end{equation}
+
+\noindent
+Fall 2: $D_{kj} = D_{ij}$
+\begin{equation}
+  D_{kj} = D_{ij}=2l-1
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 1 \xRightarrow{(4)} D_{kj} = 2D^{'}_{kj} - 1
+\end{equation}
+\begin{equation}
+  2l - 1 = 2D^{'}_{kj} - 1 \implies D^{'}_{kj} = l
+\end{equation}
+\begin{equation}
+  D^{'}_{ij} = l \wedge D^{'}_{kj} = l \implies D^{'}_{kj} \leq D^{'}_{ij}
+\end{equation}
+
+\noindent
+Fall 3: $D_{kj} = D_{ij} + 1$
+\begin{equation}
+  D_{kj} = D_{ij} + 1 = 2l
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 0 \xRightarrow{(4)} D_{kj} = 2D^{'}_{kj}
+\end{equation}
+\begin{equation}
+  2l = 2D^{'}_{kj} \implies D^{'}_{kj} = l
+\end{equation}
+\begin{equation}
+  D^{'}_{ij} = l \wedge D^{'}_{kj} = l \implies D^{'}_{kj} \leq D^{'}_{ij}
+\end{equation}
+
+\noindent
+Damit sind i.) und ii.) wie folgt bewiesen:
+\begin{itemize}
+  \item[] i.) durch (10), (14) und (18).
+  \item[] ii.) durch (10) und der Tatsache, dass es einen Knoten $k$ mit $D_{kj} = D_{ij} - 1$ geben muss. Der Knoten $k$ ist der erste Knoten der auf dem kürzesten Weg von $i$ nach $j$ besucht wird. Würde ein solcher Knoten nicht existieren gäbe es auch diesen Weg nicht.
+\end{itemize}
+\end{proof}
+
+\newpage
+{\noindent\bfseries Aufgabe 6}%
+\medskip%
+
+\begin{proof}
+\noindent
+Zu zeigen:
+\begin{enumerate}
+  \item[i.)] $D_{ij}$ ist gerade genau dann, wenn $\sum_{k \in \Gamma(i)} D^{'}_{kj} \geq D^{'}_{ij} \cdot \text{deg}(i)$.
+  \item[ii.)] $D_{ij}$ ist ungerade genau dann, wenn $\sum_{k \in \Gamma(i)} D^{'}_{kj} < D^{'}_{ij} \cdot \text{deg}(i)$.
+\end{enumerate}
+
+\begin{equation}
+  D_{ij}(\text{mod } 2) = 0
+\end{equation}
+\begin{equation}
+  \implies \exists l \in \mathbb{N}: D_{ij} = 2l
+\end{equation}
+
+\noindent
+und es gilt:
+\begin{equation}
+  D_{ij} = 2D^{'}_{ij}
+\end{equation}
+
+\noindent
+aus (20) und (21) folgt: 
+\begin{equation}
+  2l = 2D^{'}_{ij} \implies D^{'}_{ij} = l
+\end{equation}
+
+\noindent
+Der Knoten k ist direkter Nachbar von i also gilt:
+\begin{equation}
+  D_{ij} - 1 \leq D_{kj} \leq D_{ij} + 1
+\end{equation}
+
+\noindent
+Fall 1: $D_{kj} = D_{ij} - 1$
+\begin{equation}
+  D_{kj} = D_{ij} - 1  = 2l - 1
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 1 \implies D_{kj} = 2D^{'}_{kj} - 1
+\end{equation}
+\begin{equation}
+2l - 1 = 2D^{'}_{kj} - 1 \implies D^{'}_{kj} = l
+\end{equation}
+
+\noindent
+Fall 2: $D_{kj} = D_{ij}$
+\begin{equation}
+  D_{kj} = D_{ij} = 2l
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 0 \implies D_{kj} = 2D^{'}_{kj}
+\end{equation}
+\begin{equation}
+ 2l = 2D^{'}_{kj} \implies D^{'}_{kj} = l
+\end{equation}
+
+\noindent
+Fall 3: $D_{kj} = D_{ij} + 1$
+\begin{equation}
+  D_{kj} = D_{ij} + 1 = 2l + 1
+\end{equation}
+\begin{equation}
+  D_{kj}(\text{mod } 2) = 1 \implies D_{kj} = 2D^{'}_{kj} - 1
+\end{equation}
+\begin{equation}
+  2l + 1 = 2D^{'}_{kj} - 1 \implies D^{'}_{kj} = l + 1
+\end{equation}
+
+\noindent
+Es folgt also aus (26), (29) und (32):
+\begin{equation}
+  \forall k \in \Gamma(i): D^{'}_{kj} \geq l
+\end{equation}
+
+\noindent
+Weiters folgt aus (10), (14) und (18) sowie ii.) (Aufgabe 5):
+\begin{equation}
+  \forall k \in \Gamma(i): D^{'}_{kj} < l
+\end{equation}
+
+\noindent
+Sei $m=\abs{\Gamma(i)} = \text{deg}(i)$, dann folgen daraus die sich gegenseitig ausschlie{\ss}enden Formeln:
+\begin{equation}
+  \sum_{k \in \Gamma(i)} D^{'}_{kj} \geq l \cdot m = D^{'}_{ij} \cdot \text{deg}(i)
+\end{equation}
+\begin{equation}
+  \sum_{k \in \Gamma(i)} D^{'}_{kj} < l \cdot m = D^{'}_{ij} \cdot \text{deg}(i)
+\end{equation}
+
+\noindent
+Aus (35) und (36) folgt dann das Lemma der Angabe.
+\end{proof}
+
+\end{document}
